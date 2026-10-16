@@ -1,0 +1,526 @@
+.score-overview-charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 22px;
+  margin-bottom: 24px;
+}
+.chart-content {
+  padding: 0 24px 24px;
+  min-width: 0;
+}
+.chart-caption,
+.reference-rules > p {
+  color: #61736b;
+  font-size: 14px;
+  line-height: 1.9;
+  margin: 14px 0 0;
+}
+.chart-kicker {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.chart-kicker strong {
+  font-size: 26px;
+  font-weight: 600;
+  color: #214d47;
+  font-variant-numeric: tabular-nums;
+}
+.chart-kicker span {
+  font-size: 14px;
+  color: #61736b;
+}
+.histogram-layout {
+  display: flex;
+  height: 208px;
+  gap: 12px;
+}
+.histogram-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #61736b;
+  min-width: 52px;
+}
+.histogram-plot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  border-bottom: 1px solid #bdcec7;
+  background: repeating-linear-gradient(
+    to top,
+    transparent 0,
+    transparent calc(50% - 1px),
+    #edf2ee calc(50% - 1px),
+    #edf2ee 50%
+  );
+}
+.histogram-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: 4px;
+}
+.histogram-bar {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-radius: 3px 3px 0 0;
+  cursor: pointer;
+  padding: 0;
+  transition: filter 0.15s;
+  position: relative;
+}
+.histogram-bar:hover,
+.histogram-bar:focus-visible,
+.histogram-bar[aria-pressed='true'] {
+  filter: brightness(0.82);
+  outline: 2px solid #244e46;
+  outline-offset: 2px;
+}
+.low {
+  background: #71ac9b;
+}
+.medium {
+  background: #dfbd7a;
+}
+.high {
+  background: #cf8e78;
+}
+.histogram-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed #365b50;
+  pointer-events: none;
+}
+.histogram-x {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0 0 64px;
+  font-size: 14px;
+  color: #61736b;
+}
+.chart-selection {
+  background: #eff5f2;
+  padding: 12px 14px;
+  border-radius: 7px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #315c50;
+  margin: 18px 0 0;
+}
+.level-bars {
+  display: grid;
+  gap: 18px;
+  margin: 4px 0 26px;
+}
+.level-row > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 15px;
+  margin-bottom: 9px;
+  color: #405f53;
+  flex-wrap: wrap;
+}
+.level-row strong {
+  font-weight: 550;
+}
+.level-track,
+.disease-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #edf1ec;
+}
+.level-track > span {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+}
+.reference-bands {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+.reference-bands > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 12px 10px;
+  background: #f6f8f4;
+  border: 1px solid #e1e9df;
+  border-radius: 7px;
+  min-width: 0;
+}
+.reference-bands strong {
+  font-size: 14px;
+  font-weight: 550;
+  color: #36594b;
+}
+.reference-bands span {
+  width: 100%;
+  font-size: 14px;
+  color: #586c60;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.legend-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.reference-rules > .reference-warning,
+.reference-warning {
+  color: #8b633c;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.individual-reference {
+  padding: 0 24px 22px;
+}
+.score-scale {
+  position: relative;
+  margin: 30px 8px 12px;
+}
+.score-scale-track {
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 7px;
+}
+.score-scale-marker {
+  position: absolute;
+  height: 26px;
+  width: 3px;
+  background: #173e37;
+  transform: translateX(-50%);
+  top: -6px;
+}
+.score-scale-marker::before {
+  content: '';
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #173e37;
+  left: -4px;
+  top: -6px;
+}
+.scale-endpoints {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  color: #66766a;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.percentile-explanation {
+  margin: 22px 0;
+  color: #315c50;
+  font-size: 17px;
+  line-height: 1.8;
+}
+.percentile-explanation strong {
+  font-size: 23px;
+  font-weight: 600;
+}
+.percentile-explanation > span {
+  display: block;
+  color: #66766a;
+  font-size: 14px;
+  margin-top: 5px;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  color: #61736b;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.chart-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.mean-symbol {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #268572;
+  border-radius: 50%;
+  background: #fff;
+}
+.last-symbol {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #254f47;
+  transform: rotate(45deg);
+}
+.lab-ranges {
+  padding: 0 24px 24px;
+}
+.lab-range-row {
+  margin-top: 23px;
+}
+.lab-range-heading,
+.disease-row-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #35594d;
+  font-size: 15px;
+}
+.lab-range-heading strong {
+  font-weight: 550;
+}
+.lab-range-track {
+  position: relative;
+  height: 3px;
+  background: #b9cfbf;
+  margin: 24px 8px 16px;
+}
+.lab-range-track.single-value {
+  background: none;
+}
+.lab-range-track .mean-symbol,
+.lab-range-track .last-symbol {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.lab-range-track .last-symbol {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.lab-range-detail {
+  color: #61736b;
+  font-size: 14px;
+  margin: 8px 0 0;
+  line-height: 1.8;
+}
+.lab-table-details {
+  margin: 0 24px 22px;
+}
+.lab-table-details > summary {
+  cursor: pointer;
+  font-size: 15px;
+  color: #315c50;
+  padding: 12px 0;
+}
+.lab-table-details .table-scroll {
+  margin: 0 -24px;
+}
+.profile-reference-note {
+  font-size: 14px;
+  color: #64766a;
+  line-height: 1.9;
+  margin: 14px 0 0;
+}
+.disease-intro .chart-caption {
+  margin-top: 0;
+}
+.disease-intro .chart-legend {
+  margin-top: 14px;
+}
+.disease-comparison {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0 24px 24px;
+  gap: 16px;
+}
+.disease-row {
+  padding: 18px;
+  border: 1px solid #dfe8df;
+  border-radius: 9px;
+  background: #fbfcf9;
+}
+.disease-row-heading strong {
+  font-weight: 550;
+}
+.disease-row-heading > span {
+  color: #1f7562;
+  font-weight: 600;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.disease-track {
+  position: relative;
+  margin: 20px 4px 0;
+}
+.disease-track > span {
+  display: block;
+  height: 100%;
+  background: #71ac9b;
+  border-radius: 5px;
+}
+.median-symbol {
+  display: inline-block;
+  width: 3px;
+  height: 18px;
+  background: #7e6339;
+}
+.disease-track .median-symbol {
+  position: absolute;
+  top: -4px;
+  transform: translateX(-50%);
+}
+.disease-row > p {
+  color: #61736b;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 12px 0 0;
+}
+.timeline-scroll {
+  overflow-x: auto;
+}
+.timeline-chart {
+  display: flex;
+  min-width: 620px;
+  gap: 12px;
+}
+.timeline-y {
+  width: 35px;
+  flex-shrink: 0;
+  position: relative;
+  font-size: 14px;
+  color: #61736b;
+}
+.timeline-y > span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+}
+.timeline-plot {
+  flex: 1;
+  min-width: 0;
+}
+.timeline-plot svg {
+  overflow: visible;
+  display: block;
+}
+.timeline-grid {
+  stroke: #e8eee9;
+  stroke-width: 1;
+}
+.timeline-reference {
+  stroke: #a99e7a;
+  stroke-width: 1;
+  stroke-dasharray: 5 5;
+}
+.timeline-connection {
+  stroke: #6a9e8e;
+  stroke-width: 2;
+}
+.timeline-point {
+  stroke: #fff;
+  stroke-width: 2;
+  cursor: pointer;
+}
+.timeline-point.low {
+  fill: #4d927e;
+}
+.timeline-point.medium {
+  fill: #c3994f;
+}
+.timeline-point.high {
+  fill: #bd775f;
+}
+.timeline-point:hover,
+.timeline-point:focus-visible {
+  stroke: #214e41;
+  stroke-width: 3;
+  outline: none;
+}
+.timeline-x {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 10px 0;
+  color: #61736b;
+  font-size: 14px;
+}
+.timeline-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 22px;
+  padding: 14px 16px;
+  background: #eff5f2;
+  border-radius: 7px;
+  font-size: 15px;
+  color: #315c50;
+  line-height: 1.9;
+  margin-top: 18px;
+}
+.timeline-selected strong {
+  font-weight: 550;
+}
+@media (max-width: 1250px) {
+  .disease-comparison {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .score-overview-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .chart-content,
+  .lab-ranges {
+    padding: 0 17px 18px;
+  }
+  .individual-reference {
+    padding: 0 17px 18px;
+  }
+  .score-overview-charts {
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .reference-bands {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .reference-bands > div {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .reference-bands span {
+    width: auto;
+    margin-left: auto;
+  }
+  .histogram-layout {
+    height: 180px;
+    gap: 8px;
+  }
+  .histogram-bars {
+    gap: 2px;
+  }
+  .histogram-y {
+    min-width: 38px;
+  }
+  .histogram-x {
+    margin-left: 46px;
+  }
+  .disease-comparison {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 17px 18px;
+  }
+  .lab-table-details {
+    margin: 0 17px 18px;
+  }
+  .lab-table-details .table-scroll {
+    margin: 0 -17px;
+  }
+}

@@ -1,4 +1,6 @@
 import Papa from 'papaparse'
+import { buildScoreReference } from './reference'
+import type { ScoreReference } from './reference'
 
 export interface HistoricalScore {
   id: string
@@ -34,6 +36,7 @@ export interface HistoricalPatient {
 export interface HistoricalDataset {
   fingerprint: string
   importedAt: string
+  reference: ScoreReference
   patients: HistoricalPatient[]
   sources: { name: string; encoding: string; rows: number; columns: number }[]
   summary: {
@@ -128,6 +131,7 @@ export async function importHistoricalFiles(
       throw new Error('宽表存在重复患者编号，不能任意选取一行，请先核实关联关系。')
     patientIds.add(id)
   }
+  const referenceRows: { score: number; level: string }[] = []
   const scorePatients = new Set<string>()
   const exactRows = new Set<string>()
   const matched = new Map<string, Map<string, HistoricalScore>>()
@@ -158,6 +162,7 @@ export async function importHistoricalFiles(
         `评分表第 ${i + 2} 行的编号、日期、评分、实际标签或风险等级不合法。未丢弃或替换该记录。`,
       )
     }
+    referenceRows.push({ score, level })
     scorePatients.add(id)
     const key = JSON.stringify([id, date, row['再入院风险评分'], row['再入院30天实际'], level])
     exactRows.add(key)
@@ -234,6 +239,7 @@ export async function importHistoricalFiles(
   return {
     fingerprint: `${wide.hash}-${risk.hash}`,
     importedAt: new Date().toISOString(),
+    reference: buildScoreReference(referenceRows),
     patients,
     sources: [
       {

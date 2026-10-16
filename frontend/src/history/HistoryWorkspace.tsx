@@ -25,6 +25,13 @@ import { Empty, Modal, PageHeading, PanelTitle, SearchInput } from '../component
 import { downloadJson } from '../files'
 import { conflictDateCount, importHistoricalFiles, latestScores } from './data'
 import type { HistoricalDataset, HistoricalPatient } from './data'
+import {
+  ScoreDistribution,
+  IndividualReference,
+  LabRanges,
+  DiseaseComparison,
+  ReadmissionTimeline,
+} from './charts'
 import './history.css'
 
 const formatNumber = (value: number) => value.toLocaleString('zh-CN')
@@ -497,6 +504,7 @@ export function HistoryWorkspace({
                     </div>
                   ))}
                 </div>
+                <ScoreDistribution reference={data.reference} />
                 <div className="history-overview-grid">
                   <section className="panel">
                     <PanelTitle
@@ -572,6 +580,7 @@ export function HistoryWorkspace({
             {tab === 'patients' && current && (
               <HistoryPatientDetail
                 patient={current}
+                data={data}
                 workflow={workflow}
                 onBack={() => setSelected(null)}
                 onReview={() => setReviewPatient(current)}
@@ -938,12 +947,14 @@ function Pagination({
 
 function HistoryPatientDetail({
   patient: p,
+  data,
   workflow,
   onBack,
   onReview,
   onTask,
 }: {
   patient: HistoricalPatient
+  data: HistoricalDataset
   workflow: Workflow
   onBack: () => void
   onReview: () => void
@@ -1006,9 +1017,13 @@ function HistoryPatientDetail({
           画像标签<strong>{p.group.replace(/^[?\uFFFD\s]+/, '') || '未提供'}</strong>
         </span>
         <span>
-          归属值<strong>{display(p.membership, 4)}</strong>
+          画像归属度<strong>{display(p.membership, 4)}</strong>
         </span>
       </div>
+      <p className="profile-reference-note">
+        画像归属度表示聚类模型对该画像的归属把握，范围
+        0–1；它不是风险概率。画像标签与再入院等级来自不同模型，含义不同。
+      </p>
       <details className="history-source-id">
         <summary>查看原始关联编号</summary>
         <code>{p.sourceId}</code>
@@ -1016,37 +1031,37 @@ function HistoryPatientDetail({
       </details>
       <div className="history-detail-grid">
         <section className="panel">
-          <PanelTitle title="检验汇总" subtitle="均值、范围与末次记录" />
-          <div className="table-scroll">
-            <table className="patient-table history-lab-summary">
-              <thead>
-                <tr>
-                  <th>指标</th>
-                  <th>末次值</th>
-                  <th>均值</th>
-                  <th>最小值</th>
-                  <th>最大值</th>
-                  <th>记录数</th>
-                </tr>
-              </thead>
-              <tbody>
-                {p.labs.map((l) => (
-                  <tr key={l.label}>
-                    <td>{l.label}</td>
-                    <td>{display(l.last)}</td>
-                    <td>{display(l.mean)}</td>
-                    <td>{display(l.min)}</td>
-                    <td>{display(l.max)}</td>
-                    <td>{display(l.count, 0)}</td>
+          <PanelTitle title="检验历史范围" subtitle="基于真实汇总值 · 每项单独刻度" />
+          <LabRanges labs={p.labs} />
+          <details className="lab-table-details">
+            <summary>查看检验汇总数值</summary>
+            <div className="table-scroll">
+              <table className="patient-table history-lab-summary">
+                <thead>
+                  <tr>
+                    <th>指标</th>
+                    <th>末次值</th>
+                    <th>均值</th>
+                    <th>最小值</th>
+                    <th>最大值</th>
+                    <th>记录数</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="history-quality-note">
-            <Info size={16} />
-            <p>原文件未提供检验日期与单位，仅展示汇总值。</p>
-          </div>
+                </thead>
+                <tbody>
+                  {p.labs.map((l) => (
+                    <tr key={l.label}>
+                      <td>{l.label}</td>
+                      <td>{display(l.last)}</td>
+                      <td>{display(l.mean)}</td>
+                      <td>{display(l.min)}</td>
+                      <td>{display(l.max)}</td>
+                      <td>{display(l.count, 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
         </section>
         <section className="panel">
           <PanelTitle title="最近入院评分" action={<ScoreLabel patient={p} />} />
@@ -1065,27 +1080,18 @@ function HistoryPatientDetail({
                 : '原模型评分，范围 0–1。'}
             </span>
           </div>
+          <IndividualReference patient={p} reference={data.reference} />
           <div className="history-quality-note">
             <Info size={16} />
-            <p>模型版本、计算时间和个体解释未提供。</p>
+            <p>模型版本、计算时间和个体解释未提供；当前页面展示导出的历史结果。</p>
           </div>
         </section>
       </div>
       <section className="panel history-section">
-        <PanelTitle title="共病模型评分" subtitle="保留宽表中的原始输出" />
-        <div className="history-disease-scores">
-          {p.diseaseScores.length ? (
-            p.diseaseScores.map((s) => (
-              <div key={s.disease}>
-                <span>{s.disease}</span>
-                <strong>{display(s.score, 4)}</strong>
-              </div>
-            ))
-          ) : (
-            <p className="body-copy">原表未提供疾病评分。</p>
-          )}
-        </div>
+        <PanelTitle title="共病模型评分对照" subtitle="本人与当前宽表中同一疾病的中位数" />
+        <DiseaseComparison patient={p} patients={data.patients} />
       </section>
+      <ReadmissionTimeline scores={p.scores} reference={data.reference} />
       <section className="panel history-section">
         <PanelTitle title="再入院评分记录" subtitle="相同结果合并展示，并保留原表出现次数" />
         <div className="table-scroll">
