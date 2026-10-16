@@ -12,12 +12,10 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "echarts": "^6.0.0",
     "lucide-react": "^0.468.0",
     "papaparse": "^5.7.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.0.0"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

@@ -4,11 +4,9 @@ import {
   ArrowLeft,
   ArrowRight,
   CalendarDays,
-  Check,
   CheckCheck,
   CircleHelp,
   ClipboardList,
-  Database,
   Download,
   FileCheck2,
   FileText,
@@ -17,7 +15,6 @@ import {
   LoaderCircle,
   Menu,
   Plus,
-  RotateCcw,
   ShieldCheck,
   ShieldPlus,
   Upload,
@@ -25,7 +22,7 @@ import {
   X,
 } from 'lucide-react'
 import { Empty, Modal, PageHeading, PanelTitle, SearchInput } from '../components'
-import { downloadJson } from '../store'
+import { downloadJson } from '../files'
 import { conflictDateCount, importHistoricalFiles, latestScores } from './data'
 import type { HistoricalDataset, HistoricalPatient } from './data'
 import './history.css'
@@ -65,9 +62,11 @@ const noteLabels: Record<string, string> = {
 export function HistoryImportModal({
   onClose,
   onImported,
+  embedded = false,
 }: {
   onClose: () => void
   onImported: (data: HistoricalDataset) => void
+  embedded?: boolean
 }) {
   const [wide, setWide] = useState<File | null>(null)
   const [risk, setRisk] = useState<File | null>(null)
@@ -97,76 +96,78 @@ export function HistoryImportModal({
       if (active.current) setBusy(false)
     }
   }
-  return (
+  const body = (
+    <form className="modal-body import-form" onSubmit={submit}>
+      <label className={`file-picker ${wide ? 'has-file' : ''}`}>
+        <span className="file-step">01</span>
+        <span className="file-picker-text">
+          <strong>患者健康画像宽表</strong>
+          <span>{wide ? wide.name : '选择宽表 CSV 文件'}</span>
+        </span>
+        <Upload size={21} />
+        <input
+          type="file"
+          aria-label="患者健康画像宽表"
+          accept=".csv,text/csv"
+          disabled={busy}
+          onChange={(e) => {
+            setWide(e.target.files?.[0] ?? null)
+            setError('')
+          }}
+          required
+        />
+      </label>
+      <label className={`file-picker ${risk ? 'has-file' : ''}`}>
+        <span className="file-step">02</span>
+        <span className="file-picker-text">
+          <strong>再入院风险评分表</strong>
+          <span>{risk ? risk.name : '选择评分 CSV 文件'}</span>
+        </span>
+        <Upload size={21} />
+        <input
+          type="file"
+          aria-label="再入院风险评分表"
+          accept=".csv,text/csv"
+          disabled={busy}
+          onChange={(e) => {
+            setRisk(e.target.files?.[0] ?? null)
+            setError('')
+          }}
+          required
+        />
+      </label>
+      <p className="import-format-note">支持 UTF-8 / GB18030，单个文件不超过 32 MiB。</p>
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="modal-footer">
+        {!embedded && (
+          <button type="button" className="btn" disabled={busy} onClick={onClose}>
+            取消
+          </button>
+        )}
+        <button type="submit" className="btn primary" disabled={busy}>
+          {busy ? <LoaderCircle size={18} className="spin" /> : <ArrowRight size={18} />}
+          {busy ? '正在读取与关联…' : '打开工作台'}
+        </button>
+      </div>
+      <p className="import-storage-note">刷新后需重新选择文件；已保存的核对和随访记录仍会保留。</p>
+    </form>
+  )
+  return embedded ? (
+    body
+  ) : (
     <Modal
-      title="导入真实历史数据"
-      subtitle="在当前浏览器读取本地 CSV，不上传文件，不运行模型。"
+      title="更换数据文件"
+      subtitle="导入新文件后，页面切换到对应的患者档案。"
       onClose={() => {
         if (!busy) onClose()
       }}
       wide
     >
-      <form className="modal-body" onSubmit={submit}>
-        <div className="form-notice">
-          <Info size={17} />
-          <span>
-            支持 UTF-8 / GB18030。两份文件通过 PATIENT_ID 关联；每份不超过 32
-            MiB，可使用按患者抽取的宽表样本。
-          </span>
-        </div>
-        <label className="field">
-          患者健康画像宽表
-          <input
-            type="file"
-            aria-label="患者健康画像宽表"
-            accept=".csv,text/csv"
-            disabled={busy}
-            onChange={(e) => setWide(e.target.files?.[0] ?? null)}
-            required
-          />
-          <span className="field-hint">
-            至少包含 PATIENT_ID、年龄、SEX；共病、画像、检验汇总和疾病评分按原列读取。
-          </span>
-        </label>
-        <label className="field">
-          再入院风险评分表
-          <input
-            type="file"
-            aria-label="再入院风险评分表"
-            accept=".csv,text/csv"
-            disabled={busy}
-            onChange={(e) => setRisk(e.target.files?.[0] ?? null)}
-            required
-          />
-          <span className="field-hint">
-            包含患者编号、入院时间、评分、实际标签、风险等级。保留重复次数与同日评分差异。
-          </span>
-        </label>
-        <div className="history-import-explainer">
-          <ShieldCheck size={19} />
-          <p>
-            患者与模型结果标为真实历史来源。文件没有提供的姓名、出院日期、检验时间点和个体 SHAP
-            不补造。新复核与随访仍单独标为本地流程试用。
-          </p>
-        </div>
-        <p className="field-hint">
-          原始数据只在本次页面内存中使用；刷新后需重新选择相同文件。流程记录按文件指纹隔离保存在当前浏览器。
-        </p>
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
-        <div className="modal-footer">
-          <button type="button" className="btn" disabled={busy} onClick={onClose}>
-            取消
-          </button>
-          <button type="submit" className="btn primary" disabled={busy}>
-            {busy ? <LoaderCircle size={16} className="spin" /> : <Upload size={16} />}
-            {busy ? '正在解析与关联…' : '导入并查看历史数据'}
-          </button>
-        </div>
-      </form>
+      {body}
     </Modal>
   )
 }
@@ -179,7 +180,7 @@ function ScoreLabel({ patient }: { patient: HistoricalPatient }) {
     <span
       className={`badge risk-${latest.level === '高风险' ? 'priority' : latest.level === '中风险' ? 'attention' : 'routine'}`}
     >
-      {latest.level} · 原模型分组
+      {latest.level}
     </span>
   )
 }
@@ -230,11 +231,9 @@ function isWorkflow(value: unknown, data: HistoricalDataset): value is Workflow 
 
 export function HistoryWorkspace({
   data,
-  onExit,
   onReplace,
 }: {
   data: HistoricalDataset
-  onExit: () => void
   onReplace: () => void
 }) {
   const [tab, setTab] = useState<Tab>('overview')
@@ -290,7 +289,7 @@ export function HistoryWorkspace({
       localStorage.setItem(key, JSON.stringify(next))
       stateRef.current = next
       setWorkflow(next)
-      setMessage('本地流程记录已保存。患者与历史模型结果未被修改。')
+      setMessage('记录已保存。')
       return true
     } catch {
       setMessage('保存失败，记录未更新。请检查浏览器存储权限或剩余空间。')
@@ -312,6 +311,18 @@ export function HistoryWorkspace({
     setTab('patients')
     window.scrollTo({ top: 0 })
   }
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileMenu(false)
+    }
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  }, [])
+  useEffect(() => {
+    if (!message || storageError || message.startsWith('保存失败')) return
+    const timer = setTimeout(() => setMessage(''), 3500)
+    return () => clearTimeout(timer)
+  }, [message, storageError])
   const current = data.patients.find((p) => p.id === selected)
   const exportWorkflow = () =>
     downloadJson(
@@ -320,16 +331,16 @@ export function HistoryWorkspace({
         datasetFingerprint: data.fingerprint,
         exportedAt: new Date().toISOString(),
         description:
-          '仅包含本地流程试用记录，不代表原始医疗随访事实。患者显示编号需使用相同文件重新导入后关联。',
+          '仅包含当前核对与随访记录，不代表原始医疗随访事实。患者需使用相同文件重新导入后关联。',
         ...stateRef.current,
       },
       '银龄守护-本地流程记录.json',
     )
   const nav = [
-    { id: 'overview', label: '历史数据概览', icon: LayoutDashboard },
+    { id: 'overview', label: '工作台', icon: LayoutDashboard },
     { id: 'patients', label: '患者档案', icon: Users },
-    { id: 'reviews', label: '来源核对', icon: ShieldCheck },
-    { id: 'tasks', label: '随访流程试用', icon: ClipboardList },
+    { id: 'reviews', label: '评分核对', icon: ShieldCheck },
+    { id: 'tasks', label: '随访任务', icon: ClipboardList },
   ] as const
   const noRecords = data.patients.filter((p) => !p.scores.length).length
   return (
@@ -348,11 +359,11 @@ export function HistoryWorkspace({
           </span>
           <div>
             <strong>银龄守护</strong>
-            <span>SILVER GUARDIAN</span>
+            <span>健康档案与连续随访</span>
           </div>
         </button>
-        <div className="workspace-label">智慧医疗 · 真实历史数据</div>
-        <div className="nav-group-label">历史数据工作空间</div>
+        <div className="workspace-label">智慧医疗 · 连续健康管理</div>
+        <div className="nav-group-label">患者管理</div>
         <nav aria-label="历史数据导航">
           {nav.map((n) => (
             <button
@@ -368,16 +379,12 @@ export function HistoryWorkspace({
         <div className="sidebar-bottom">
           <button className="sidebar-help" onClick={() => setInfo(true)}>
             <CircleHelp size={18} />
-            <span>来源与字段说明</span>
+            <span>数据说明</span>
             <ArrowRight size={14} />
-          </button>
-          <button className="sidebar-help" onClick={onExit}>
-            <ArrowLeft size={17} />
-            <span>返回独立示例模式</span>
           </button>
           <div className="local-environment">
             <span className="small-green-dot" />
-            文件仅在当前浏览器读取
+            历史数据 · 本地读取
           </div>
         </div>
       </aside>
@@ -396,30 +403,16 @@ export function HistoryWorkspace({
           <div className="button-row history-header-actions">
             <button className="btn small" onClick={onReplace}>
               <Upload size={15} />
-              更换文件
+              更换数据
             </button>
             <button className="btn small" onClick={exportWorkflow}>
               <Download size={15} />
-              导出流程记录
+              导出记录
             </button>
           </div>
         </header>
         <main className="main-content">
           <div className="content-wrap">
-            <div className="history-source-banner">
-              <span className="history-source-tag">
-                <Database size={14} />
-                真实历史来源
-              </span>
-              <span>
-                患者与历史模型结果来自所选 CSV · {data.patients.length} 位宽表样本 ·
-                刷新后需重新导入
-              </span>
-              <button className="text-link" onClick={() => setInfo(true)}>
-                查看来源
-                <Info size={14} />
-              </button>
-            </div>
             {message && (
               <div
                 className={`history-message ${storageError ? 'error' : ''}`}
@@ -452,15 +445,15 @@ export function HistoryWorkspace({
             {tab === 'overview' && (
               <>
                 <PageHeading
-                  eyebrow="HISTORICAL DATA / 历史数据概览"
-                  title="让真实记录，清晰呈现。"
-                  description="本页展示导入样本和原有模型输出，不运行训练，也不补造临床记录。"
+                  eyebrow="HISTORICAL DATA / 工作台"
+                  title="健康管理概览"
+                  description="查看患者档案、历史评分与待核对记录。"
                   actions={
                     <div className="date-chip">
                       <FileText size={17} />
                       <div>
                         <strong>{data.sources[0].columns} 个宽表字段</strong>
-                        <span>原始模型结果 · 非实时监测</span>
+                        <span>历史分析结果</span>
                       </div>
                     </div>
                   }
@@ -468,9 +461,9 @@ export function HistoryWorkspace({
                 <div className="metrics-grid">
                   {[
                     {
-                      label: '宽表患者样本',
+                      label: '患者档案',
                       value: data.patients.length,
-                      detail: '按唯一患者编号统计',
+                      detail: '按患者编号去重',
                       icon: Users,
                     },
                     {
@@ -480,15 +473,15 @@ export function HistoryWorkspace({
                       icon: CheckCheck,
                     },
                     {
-                      label: '关联评分原始行',
+                      label: '关联评分记录',
                       value: data.summary.matchedRows,
-                      detail: '包括重复行，不等于就诊事件数',
+                      detail: '按原表行数统计，含重复行',
                       icon: FileText,
                     },
                     {
-                      label: '同日差异记录组',
+                      label: '待核对记录组',
                       value: data.summary.conflictingDates,
-                      detail: '同一患者同日存在不同导出值',
+                      detail: '存在不同评分或标签',
                       icon: ShieldCheck,
                     },
                   ].map((m) => (
@@ -507,80 +500,56 @@ export function HistoryWorkspace({
                 <div className="history-overview-grid">
                   <section className="panel">
                     <PanelTitle
-                      title="已关联患者"
-                      subtitle="来自宽表样本，点击查看真实汇总与历史评分"
+                      title="患者概览"
+                      subtitle="查看近期导入的患者与历史评分"
                       action={
                         <button className="text-link" onClick={() => navigate('patients')}>
-                          全部样本
+                          全部患者
                           <ArrowRight size={14} />
                         </button>
                       }
                     />
                     <HistoryPatientTable
-                      patients={data.patients.slice(0, 6)}
+                      patients={data.patients.slice(0, 5)}
+                      compact
                       workflow={workflow}
                       onSelect={showPatient}
                     />
-                    <div className="panel-footnote">
-                      当前仅展示导入样本，不能外推至全院或全部原始患者。
-                    </div>
+                    <div className="panel-footnote">仅统计本次导入范围。</div>
                   </section>
                   <section className="panel history-quality">
-                    <PanelTitle
-                      title="关联质量与数据口径"
-                      subtitle="保留重复来源，避免混淆统计单位"
-                    />
+                    <PanelTitle title="数据关联情况" subtitle="完整保留原始记录与差异" />
                     <dl>
                       <div>
-                        <dt>评分文件全部原始行</dt>
+                        <dt>评分文件记录数</dt>
                         <dd>{formatNumber(data.summary.scoreRows)}</dd>
                       </div>
                       <div>
-                        <dt>评分文件不同患者</dt>
+                        <dt>评分文件患者数</dt>
                         <dd>{formatNumber(data.summary.scorePatients)}</dd>
                       </div>
                       <div>
-                        <dt>评分文件完全重复的额外行</dt>
+                        <dt>完全重复的额外行</dt>
                         <dd>{formatNumber(data.summary.exactRepeatRows)}</dd>
                       </div>
                       <div>
-                        <dt>样本关联的不同五列记录</dt>
+                        <dt>关联的不同结果</dt>
                         <dd>{formatNumber(data.summary.matchedDistinctRows)}</dd>
                       </div>
                       <div>
-                        <dt>样本同日实际标签差异组</dt>
+                        <dt>实际标签存在差异</dt>
                         <dd>{formatNumber(data.summary.conflictingOutcomes)}</dd>
                       </div>
                     </dl>
                     <div className="history-quality-note">
                       <Info size={16} />
-                      <p>
-                        完全相同的五列记录合并展示并保留出现次数；同日不同评分逐条保留。缺少
-                        ID_ENT，不能判断它们是否对应同一次住院。
-                      </p>
+                      <p>同日不同评分逐条保留。缺少就诊编号时，不自动合并为同一次住院。</p>
                     </div>
                     <button className="btn small" onClick={() => navigate('reviews')}>
-                      查看来源核对队列
+                      查看评分核对队列
                       <ArrowRight size={14} />
                     </button>
                   </section>
-                </div>
-                <div className="history-coverage">
-                  <div>
-                    <Check size={17} />
-                    <strong>真实历史字段</strong>
-                    <p>年龄、性别、慢病标志、画像标签、检验汇总、疾病评分、再入院结果。</p>
-                  </div>
-                  <div>
-                    <Info size={17} />
-                    <strong>尚未提供</strong>
-                    <p>姓名、出院日期、检验时间点、计量单位、个体解释及真实随访记录。</p>
-                  </div>
-                  <div>
-                    <ClipboardList size={17} />
-                    <strong>独立流程试用</strong>
-                    <p>新核对和随访从空记录开始，保存在本地，不视作历史医疗事实。</p>
-                  </div>
                 </div>
               </>
             )}
@@ -588,8 +557,8 @@ export function HistoryWorkspace({
               <>
                 <PageHeading
                   eyebrow="PATIENT RECORDS / 真实历史档案"
-                  title="从原始字段，认识患者。"
-                  description="显示编号用于本次浏览，未虚构患者姓名。评分来自最新入院日期对应的原表记录。"
+                  title="患者档案"
+                  description="按患者编号、慢病和评分状态查找档案。"
                 />
                 <HistoryDirectory
                   data={data}
@@ -612,9 +581,9 @@ export function HistoryWorkspace({
             {tab === 'reviews' && (
               <>
                 <PageHeading
-                  eyebrow="SOURCE REVIEW / 来源核对"
-                  title="先核实来源，再解读结果。"
-                  description="核对同日差异与缺失字段，人工记录为本地操作，不代表模型已完成临床验证。"
+                  eyebrow="SOURCE REVIEW / 评分核对"
+                  title="评分核对"
+                  description="查看同日差异记录，保存核对意见与待补充事项。"
                 />
                 <HistoryReviewQueue
                   data={data}
@@ -627,16 +596,16 @@ export function HistoryWorkspace({
             {tab === 'tasks' && (
               <>
                 <PageHeading
-                  eyebrow="LOCAL WORKFLOW / 随访流程试用"
-                  title="真实档案，独立的流程记录。"
-                  description="这些任务由你在此创建；它们不来自原始数据，也不会联系患者或发送通知。"
+                  eyebrow="LOCAL WORKFLOW / 随访任务"
+                  title="随访任务"
+                  description="安排随访，记录联系结果与后续处理。"
                   actions={
                     <button
                       className="btn primary"
                       onClick={() => setTaskPatient(data.patients[0].id)}
                     >
                       <Plus size={16} />
-                      新建试用任务
+                      新建随访任务
                     </button>
                   }
                 />
@@ -654,16 +623,7 @@ export function HistoryWorkspace({
                 />
               </>
             )}
-            <footer className="app-footer">
-              <span>
-                <ShieldPlus size={14} />
-                银龄守护 · 本地历史数据工作台
-              </span>
-              <button onClick={() => setResetDialog(true)}>
-                <RotateCcw size={13} />
-                恢复本地流程为空
-              </button>
-            </footer>
+            <footer className="app-footer">银龄守护 · 历史健康档案</footer>
           </div>
         </main>
       </div>
@@ -713,11 +673,11 @@ export function HistoryWorkspace({
         >
           <div className="modal-body">
             <p className="body-copy">
-              将删除这组文件对应的核对意见与试用任务。可先导出保存，其他文件的数据与独立示例模式不会受影响。
+              将删除这组文件对应的核对意见与随访任务。可先导出保存，其他文件的记录不受影响。
             </p>
             <button className="text-link" onClick={exportWorkflow}>
               <Download size={15} />
-              先导出流程记录
+              先导出记录
             </button>
             <div className="modal-footer">
               <button className="btn" onClick={() => setResetDialog(false)}>
@@ -747,7 +707,7 @@ export function HistoryWorkspace({
       )}
       {info && (
         <Modal
-          title="真实来源与字段说明"
+          title="真实数据说明"
           subtitle="历史数据、模型输出和本地操作分开呈现。"
           onClose={() => setInfo(false)}
           wide
@@ -772,21 +732,22 @@ export function HistoryWorkspace({
               </p>
             </div>
             <div className="history-info-list">
-              <p>仅读取所选文件，不发送到服务器；所有统计注明样本或评分文件口径。</p>
+              <p>文件仅在浏览器内读取，刷新后重新选择相同文件即可关联已保存的核对与随访记录。</p>
               <p>
-                疾病评分按已有输出展示，不作为未来新发疾病的已验证概率；画像名称保留原值并注明为模型标签。
-              </p>
-              <p>没有个体 SHAP 或带时间的检验明细，故不绘制风险贡献图和检验时间曲线。</p>
-              <p>
-                历史实际标签只用于回顾展示，不进入新任务的评分计算。此界面不重新训练模型，也不提供独立测试指标。
-              </p>
-              <p>
-                内存中的原始数据在刷新时释放；选择相同两份文件，可关联到按 SHA-256
-                指纹隔离保存的流程记录。
+                原表未提供的姓名、出院日期、检验明细和模型解释保持为空；所有评分按已有模型输出展示。
               </p>
             </div>
             <div className="modal-footer">
               <span className="footer-note">导入于 {localTime(data.importedAt)}</span>
+              <button
+                className="btn danger-outline"
+                onClick={() => {
+                  setInfo(false)
+                  setResetDialog(true)
+                }}
+              >
+                清除本地记录
+              </button>
               <button className="btn primary" onClick={() => setInfo(false)}>
                 了解了
               </button>
@@ -802,7 +763,9 @@ function HistoryPatientTable({
   patients,
   workflow,
   onSelect,
+  compact = false,
 }: {
+  compact?: boolean
   patients: HistoricalPatient[]
   workflow: Workflow
   onSelect: (p: HistoricalPatient) => void
@@ -810,14 +773,14 @@ function HistoryPatientTable({
   if (!patients.length) return <Empty />
   return (
     <div className="table-scroll">
-      <table className="patient-table history-table">
+      <table className={`patient-table history-table ${compact ? 'compact' : ''}`}>
         <thead>
           <tr>
-            <th>患者显示编号</th>
-            <th>宽表慢病标志</th>
-            <th>最新入院日期</th>
-            <th>历史评分情况</th>
-            <th>本地核对</th>
+            <th>患者</th>
+            <th>主要共病</th>
+            {!compact && <th>最新入院日期</th>}
+            <th>历史评分</th>
+            {!compact && <th>核对状态</th>}
             <th>
               <span className="sr-only">详情</span>
             </th>
@@ -851,15 +814,17 @@ function HistoryPatientTable({
                   )}
                 </div>
               </td>
-              <td className="date-text">{latestScores(p).date || '未关联'}</td>
+              {!compact && <td className="date-text">{latestScores(p).date || '未关联'}</td>}
               <td>
                 <ScoreLabel patient={p} />
               </td>
-              <td>
-                <span className="neutral-pill">
-                  {noteLabels[workflow.notes[p.id]?.status] ?? '未核对'}
-                </span>
-              </td>
+              {!compact && (
+                <td>
+                  <span className="neutral-pill">
+                    {noteLabels[workflow.notes[p.id]?.status] ?? '未核对'}
+                  </span>
+                </td>
+              )}
               <td>
                 <button
                   className="table-arrow"
@@ -925,7 +890,7 @@ function HistoryDirectory({
             setPage(1)
           }}
         >
-          <option value="all">全部样本</option>
+          <option value="all">全部患者</option>
           <option value="conflict">存在同日差异</option>
           <option value="unmatched">未关联评分</option>
         </select>
@@ -1004,13 +969,13 @@ function HistoryPatientDetail({
           <div>
             <div className="profile-name">
               <h1>患者 {p.id}</h1>
-              <span className="history-real-pill">真实历史样本</span>
+              <span className="history-real-pill">历史档案</span>
             </div>
             <p>
               {p.age === null ? '年龄未提供' : `${p.age} 岁`}
               <span>·</span>
               {p.sex}
-              <span>·</span>未提供姓名、科室及出院日期
+              <span>·</span>姓名、科室与出院日期未提供
             </p>
             <div className="profile-diseases">
               {p.diseases.map((d) => (
@@ -1022,11 +987,11 @@ function HistoryPatientDetail({
         <div className="profile-actions">
           <button className="btn" onClick={onReview}>
             <FileCheck2 size={16} />
-            记录来源核对
+            记录评分核对
           </button>
           <button className="btn primary" onClick={onTask}>
             <Plus size={16} />
-            新建试用任务
+            新建随访任务
           </button>
         </div>
       </section>
@@ -1038,10 +1003,10 @@ function HistoryPatientDetail({
           住院次数<strong>{display(p.admissions, 0)}</strong>
         </span>
         <span>
-          原始模型标签<strong>{p.group}</strong>
+          画像标签<strong>{p.group.replace(/^[?\uFFFD\s]+/, '') || '未提供'}</strong>
         </span>
         <span>
-          画像归属值<strong>{display(p.membership, 4)}</strong>
+          归属值<strong>{display(p.membership, 4)}</strong>
         </span>
       </div>
       <details className="history-source-id">
@@ -1051,10 +1016,7 @@ function HistoryPatientDetail({
       </details>
       <div className="history-detail-grid">
         <section className="panel">
-          <PanelTitle
-            title="检验汇总特征"
-            subtitle="来自宽表聚合值；原文件未提供单位和各次检验日期"
-          />
+          <PanelTitle title="检验汇总" subtitle="均值、范围与末次记录" />
           <div className="table-scroll">
             <table className="patient-table history-lab-summary">
               <thead>
@@ -1083,13 +1045,11 @@ function HistoryPatientDetail({
           </div>
           <div className="history-quality-note">
             <Info size={16} />
-            <p>
-              这些值无法还原完整时间曲线，也无法确认每项末次值的日期。单位缺失时不与固定参考范围比较。
-            </p>
+            <p>原文件未提供检验日期与单位，仅展示汇总值。</p>
           </div>
         </section>
         <section className="panel">
-          <PanelTitle title="最近入院日期的历史评分" action={<ScoreLabel patient={p} />} />
+          <PanelTitle title="最近入院评分" action={<ScoreLabel patient={p} />} />
           <div className="history-latest-score">
             <strong>
               {latest.conflicting
@@ -1102,22 +1062,17 @@ function HistoryPatientDetail({
             <span>
               {latest.conflicting
                 ? `同日有 ${latest.entries.length} 条不同导出记录，未任意取平均或最大值。`
-                : '保留原始 0–1 模型评分，不等同于经过临床验证的个人事件概率。'}
+                : '原模型评分，范围 0–1。'}
             </span>
           </div>
           <div className="history-quality-note">
             <Info size={16} />
-            <p>
-              未提供模型版本、计算时间和个体 SHAP。原有疾病与检验特征不直接充当本次评分的解释依据。
-            </p>
+            <p>模型版本、计算时间和个体解释未提供。</p>
           </div>
         </section>
       </div>
       <section className="panel history-section">
-        <PanelTitle
-          title="疾病相关模型输出"
-          subtitle="原宽表既有评分，不表示未来发病预测已获得验证"
-        />
+        <PanelTitle title="共病模型评分" subtitle="保留宽表中的原始输出" />
         <div className="history-disease-scores">
           {p.diseaseScores.length ? (
             p.diseaseScores.map((s) => (
@@ -1132,10 +1087,7 @@ function HistoryPatientDetail({
         </div>
       </section>
       <section className="panel history-section">
-        <PanelTitle
-          title="再入院评分原始结果"
-          subtitle="完全相同的五列合并展示，保留原文件出现次数；不同记录逐条保留"
-        />
+        <PanelTitle title="再入院评分记录" subtitle="相同结果合并展示，并保留原表出现次数" />
         <div className="table-scroll">
           <table className="patient-table history-score-table">
             <thead>
@@ -1168,8 +1120,8 @@ function HistoryPatientDetail({
       <div className="detail-bottom">
         <section className="panel">
           <PanelTitle
-            title="本地来源核对"
-            subtitle="当前操作记录，不是原始临床评估"
+            title="核对意见"
+            subtitle="查看当前保存的核对意见"
             action={<span className="neutral-pill">{noteLabels[note?.status] ?? '未核对'}</span>}
           />
           <p className="review-note">
@@ -1184,7 +1136,7 @@ function HistoryPatientDetail({
           </div>
         </section>
         <section className="panel">
-          <PanelTitle title="本地随访流程记录" subtitle="仅显示本次试用中创建的联系记录" />
+          <PanelTitle title="随访记录" subtitle="按本次记录时间排列" />
           {records.length ? (
             <div className="record-list">
               {records.map((r, i) => (
@@ -1194,16 +1146,13 @@ function HistoryPatientDetail({
                       {r.title} · {r.contact}
                     </h3>
                     <p>{r.text}</p>
-                    <small>{localTime(r.at)} · 本地试用用户</small>
+                    <small>{localTime(r.at)} · 当前用户</small>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <Empty
-              title="原始随访记录未提供"
-              description="当前没有本地试用联系记录，未填充虚构随访。"
-            />
+            <Empty title="暂无随访记录" description="联系后填写随访记录，处理过程将在这里保留。" />
           )}
         </section>
       </div>
@@ -1234,9 +1183,9 @@ function HistoryReviewQueue({
   return (
     <section className="panel">
       <div className="filter-toolbar">
-        <span className="tiny-label">不以未核实的评分自动生成临床关注等级</span>
+        <span className="tiny-label">保留同日差异，逐条核对</span>
         <select
-          aria-label="来源核对筛选"
+          aria-label="评分核对筛选"
           value={filter}
           onChange={(e) => {
             setFilter(e.target.value)
@@ -1245,7 +1194,7 @@ function HistoryReviewQueue({
         >
           <option value="conflict">存在同日差异</option>
           <option value="pending">尚无本地核对</option>
-          <option value="all">全部样本</option>
+          <option value="all">全部患者</option>
         </select>
       </div>
       <div className="history-review-list">
@@ -1307,7 +1256,7 @@ function HistoryTasks({
   return (
     <section className="panel">
       <div className="filter-toolbar">
-        <span className="tiny-label">从空任务开始，原始评分表不包含随访任务。</span>
+        <span className="tiny-label">当前创建的随访任务</span>
         <select
           aria-label="本地任务状态"
           value={filter}
@@ -1353,7 +1302,7 @@ function HistoryTasks({
                       <CalendarDays size={14} />
                       计划 {task.dueDate}
                     </span>
-                    <span>本地试用用户</span>
+                    <span>当前用户</span>
                     <span>{task.records.length} 条记录</span>
                   </div>
                 </div>
@@ -1365,7 +1314,7 @@ function HistoryTasks({
                   )}
                   {task.status !== 'completed' && (
                     <button className="btn primary small" onClick={() => onRecord(task)}>
-                      填写试用记录
+                      填写随访记录
                     </button>
                   )}
                 </div>
@@ -1387,10 +1336,7 @@ function HistoryTasks({
           ))}
         </div>
       ) : (
-        <Empty
-          title="尚无本地试用任务"
-          description="从患者档案创建任务，原始医疗记录不会被更改。"
-        />
+        <Empty title="暂无随访任务" description="可从患者档案创建随访任务。" />
       )}
       <Pagination current={current} pages={pages} count={tasks.length} onPage={setPage} />
     </section>
@@ -1421,11 +1367,7 @@ function HistoryReviewModal({
     else setError('保存失败，记录未更新。请检查浏览器存储或先恢复损坏的本地流程。')
   }
   return (
-    <Modal
-      title="记录来源核对"
-      subtitle={`患者 ${patient.id} · 本地流程操作，不更改原始评分。`}
-      onClose={onClose}
-    >
+    <Modal title="记录评分核对" subtitle={`患者 ${patient.id}`} onClose={onClose}>
       <form className="modal-body" onSubmit={submit}>
         <label className="field">
           核对结论
@@ -1478,7 +1420,7 @@ function HistoryTaskModal({
   onSave: (task: LocalTask) => boolean
 }) {
   const [selected, setSelected] = useState(patientId)
-  const [title, setTitle] = useState('历史档案随访流程试用')
+  const [title, setTitle] = useState('历史档案随访任务')
   const [dueDate, setDueDate] = useState(today())
   const [error, setError] = useState('')
   const submit = (e: FormEvent) => {
@@ -1501,11 +1443,7 @@ function HistoryTaskModal({
     else setError('保存失败，任务未创建。请检查浏览器存储或先恢复损坏的本地流程。')
   }
   return (
-    <Modal
-      title="新建本地试用任务"
-      subtitle="不代表原有医疗服务安排，也不会发送外部通知。"
-      onClose={onClose}
-    >
+    <Modal title="新建随访任务" subtitle="选择患者并安排计划日期。" onClose={onClose}>
       <form className="modal-body" onSubmit={submit}>
         <label className="field">
           患者
@@ -1541,7 +1479,7 @@ function HistoryTaskModal({
             取消
           </button>
           <button className="btn primary" type="submit">
-            创建本地任务
+            创建随访任务
           </button>
         </div>
       </form>
@@ -1572,11 +1510,7 @@ function HistoryRecordModal({
     else setError('保存失败，记录未更新。请检查浏览器存储或先恢复损坏的本地流程。')
   }
   return (
-    <Modal
-      title="填写本地试用记录"
-      subtitle={`${task.title} · 此记录不作为历史医疗事实。`}
-      onClose={onClose}
-    >
+    <Modal title="填写随访记录" subtitle={`${task.title}`} onClose={onClose}>
       <form className="modal-body" onSubmit={submit}>
         <label className="field">
           联系结果
@@ -1634,7 +1568,7 @@ function HistoryRecordModal({
             取消
           </button>
           <button className="btn primary" type="submit">
-            保存试用记录
+            保存随访记录
           </button>
         </div>
       </form>

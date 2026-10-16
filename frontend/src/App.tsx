@@ -1,327 +1,86 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import {
-  ArrowDownToLine,
-  Bell,
-  CheckCircle2,
-  ChevronRight,
-  CircleHelp,
-  ClipboardList,
-  Database,
-  Heart,
-  LayoutDashboard,
-  Menu,
-  Plus,
-  RotateCcw,
-  Search,
-  ShieldCheck,
-  ShieldPlus,
-  Users,
-  Upload,
-  AlertCircle,
-} from 'lucide-react'
-import { Dashboard, Followups, PatientDetail, Patients, Reviews } from './pages'
-import { CreateTaskModal, DataModal, ResetModal } from './forms'
-import { Empty } from './components'
-import { useStore } from './store'
+import { useState } from 'react'
+import { Activity, ClipboardList, ShieldCheck, ShieldPlus, Users } from 'lucide-react'
 import { HistoryImportModal, HistoryWorkspace } from './history/HistoryWorkspace'
 import type { HistoricalDataset } from './history/data'
 
-const navigation = [
-  { to: '/', label: '工作台', en: 'Overview', icon: LayoutDashboard },
-  { to: '/patients', label: '患者档案', en: 'Patients', icon: Users },
-  { to: '/reviews', label: '风险复核', en: 'Risk review', icon: ShieldCheck },
-  { to: '/followups', label: '随访任务', en: 'Follow-ups', icon: ClipboardList },
-]
-
 export function App() {
-  const { data, local, toast, exportData } = useStore()
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [historical, setHistorical] = useState<HistoricalDataset | null>(null)
-  const [importing, setImporting] = useState(false)
-  const [info, setInfo] = useState(false)
-  const [reset, setReset] = useState(false)
-  const [create, setCreate] = useState(false)
-  const [mobileMenu, setMobileMenu] = useState(false)
-  const [query, setQuery] = useState('')
-  const search = useRef<HTMLInputElement>(null)
-  const main = useRef<HTMLElement>(null)
-  const pending = data.patients.filter((p) => local.reviews[p.id].status === 'pending').length
-  const page =
-    location.pathname === '/'
-      ? '工作台'
-      : location.pathname.startsWith('/patients/')
-        ? '患者健康档案'
-        : (navigation.find((n) => n.to !== '/' && location.pathname.startsWith(n.to))?.label ??
-          '页面')
-  useEffect(() => {
-    setMobileMenu(false)
-    main.current?.scrollTo({ top: 0 })
-    document.title = historical ? '真实历史数据 · 银龄守护' : `${page} · 银龄守护`
-  }, [location.pathname, page, historical])
-  useEffect(() => {
-    const keyboard = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName
-      if (
-        e.key === '/' &&
-        !['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) &&
-        !document.querySelector('dialog[open]')
-      ) {
-        e.preventDefault()
-        search.current?.focus()
-      }
-      if (e.key === 'Escape') setMobileMenu(false)
-    }
-    window.addEventListener('keydown', keyboard)
-    return () => window.removeEventListener('keydown', keyboard)
-  }, [])
-  const importModal = importing ? (
-    <HistoryImportModal
-      onClose={() => setImporting(false)}
-      onImported={(next) => {
-        setHistorical(next)
-        setImporting(false)
-      }}
-    />
-  ) : null
-  if (historical)
+  const [data, setData] = useState<HistoricalDataset | null>(null)
+  const [replacing, setReplacing] = useState(false)
+  if (data)
     return (
       <>
-        <HistoryWorkspace
-          key={historical.fingerprint}
-          data={historical}
-          onExit={() => setHistorical(null)}
-          onReplace={() => setImporting(true)}
-        />
-        {importModal}
+        <HistoryWorkspace key={data.fingerprint} data={data} onReplace={() => setReplacing(true)} />
+        {replacing && (
+          <HistoryImportModal
+            onClose={() => setReplacing(false)}
+            onImported={(next) => {
+              setData(next)
+              setReplacing(false)
+            }}
+          />
+        )}
       </>
     )
   return (
-    <div className="app-shell">
-      <a
-        className="skip-link"
-        href="#main-content"
-        onClick={(e) => {
-          e.preventDefault()
-          main.current?.focus()
-          main.current?.scrollIntoView()
-        }}
-      >
-        跳到主要内容
-      </a>
-      {mobileMenu && (
-        <button
-          className="mobile-scrim"
-          onClick={() => setMobileMenu(false)}
-          aria-label="关闭导航"
-        />
-      )}
-      <aside className={`sidebar ${mobileMenu ? 'open' : ''}`}>
-        <Link to="/" className="brand">
+    <main className="import-page">
+      <header className="import-header">
+        <div className="brand">
           <span className="brand-mark">
-            <ShieldPlus size={27} strokeWidth={1.7} />
+            <ShieldPlus size={29} />
           </span>
           <div>
             <strong>银龄守护</strong>
-            <span>SILVER GUARDIAN</span>
-          </div>
-        </Link>
-        <div className="workspace-label">智慧医疗 · 连续健康管理</div>
-        <div className="nav-group-label">
-          医护工作空间<span>WORKSPACE</span>
-        </div>
-        <nav aria-label="主要导航">
-          {navigation.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              end={n.to === '/'}
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <n.icon size={20} strokeWidth={1.7} />
-              <span>{n.label}</span>
-              {n.to === '/reviews' && pending > 0 && <small className="nav-count">{pending}</small>}
-              {n.to === '/' && <span className="nav-active-dot" />}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="sidebar-care-card">
-            <span>
-              <Heart size={18} />
-            </span>
-            <h3>
-              有温度的医疗，
-              <br />
-              有连续的关怀。
-            </h3>
-            <p>连接出院评估与每一次随访。</p>
-            <div>
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-            </div>
-          </div>
-          <button className="sidebar-help" onClick={() => setInfo(true)}>
-            <CircleHelp size={18} />
-            <span>演示说明与数据来源</span>
-            <ChevronRight size={15} />
-          </button>
-          <div className="local-environment">
-            <span className="small-green-dot" />
-            <span>本地演示环境</span>
-            <span>v1.0</span>
+            <span>老年患者连续健康管理</span>
           </div>
         </div>
-      </aside>
-      <div className="workspace">
-        <header className="topbar">
-          <div className="topbar-left">
-            <button
-              className="icon-btn mobile-menu-button"
-              onClick={() => setMobileMenu((v) => !v)}
-              aria-label="打开导航"
-              aria-expanded={mobileMenu}
-            >
-              <Menu size={21} />
-            </button>
-            <span className="breadcrumb-root">医护工作空间</span>
-            <ChevronRight size={13} />
-            <span className="breadcrumb-current">{page}</span>
-          </div>
-          <div className="topbar-right">
-            <button className="btn small history-entry" onClick={() => setImporting(true)}>
-              <Upload size={15} />
-              <span>导入真实历史数据</span>
-            </button>
-            <form
-              className="global-search"
-              onSubmit={(e) => {
-                e.preventDefault()
-                navigate(`/patients${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`)
-                setQuery('')
-                search.current?.blur()
-              }}
-            >
-              <Search size={16} />
-              <input
-                ref={search}
-                aria-label="全局搜索患者"
-                placeholder="搜索患者"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <kbd>/</kbd>
-            </form>
-            <button
-              className="notification-button icon-btn"
-              aria-label={`查看${pending}项待复核评估`}
-              onClick={() => navigate('/reviews')}
-            >
-              <Bell size={19} />
-              {pending > 0 && <span />}
-            </button>
-            <div className="user-identity">
-              <span className="doctor-avatar">陈</span>
-              <div>
-                <strong>陈医生</strong>
-                <span>演示医护身份</span>
-              </div>
-            </div>
-          </div>
-        </header>
-        <main className="main-content" id="main-content" ref={main} tabIndex={-1}>
-          <div className="content-wrap">
-            <div className="demo-banner">
-              <div>
-                <span className="demo-badge">
-                  <span />
-                  DEMO
+        <span className="import-header-label">历史健康档案</span>
+      </header>
+      <div className="import-layout">
+        <section className="import-intro">
+          <span className="import-kicker">
+            <span />
+            基于真实历史数据
+          </span>
+          <h1>
+            导入健康数据，
+            <br />
+            打开患者档案。
+          </h1>
+          <p>
+            选择已有的患者宽表与再入院评分文件，
+            <br className="desktop-break" />
+            统一查看健康画像、检验汇总与历史风险。
+          </p>
+          <div className="import-capabilities">
+            {[
+              { icon: Users, title: '患者档案', text: '按患者编号关联年龄、共病与画像' },
+              { icon: Activity, title: '检验与风险', text: '保留原始结果，清楚呈现记录差异' },
+              { icon: ClipboardList, title: '随访管理', text: '记录核对意见，跟进每一项任务' },
+            ].map((item) => (
+              <div key={item.title}>
+                <span>
+                  <item.icon size={22} />
                 </span>
-                <span>当前为演示环境，所有患者与分析结果均为模拟数据。</span>
-                <button onClick={() => setInfo(true)}>
-                  了解数据来源
-                  <ChevronRight size={13} />
-                </button>
+                <div>
+                  <h2>{item.title}</h2>
+                  <p>{item.text}</p>
+                </div>
               </div>
-              <div className="demo-actions">
-                <button onClick={exportData} title="导出演示记录" aria-label="导出演示记录">
-                  <ArrowDownToLine size={14} />
-                  <span>导出记录</span>
-                </button>
-                <span />
-                <button onClick={() => setReset(true)} title="重置演示">
-                  <RotateCcw size={13} />
-                  <span>重置演示</span>
-                </button>
-              </div>
-            </div>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/patients" element={<Patients />} />
-              <Route path="/patients/:id" element={<PatientDetail />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/followups" element={<Followups />} />
-              <Route
-                path="*"
-                element={
-                  <Empty
-                    title="这个页面不存在"
-                    description="返回工作台继续查看患者与任务。"
-                    action={
-                      <Link className="btn primary" to="/">
-                        返回工作台
-                      </Link>
-                    }
-                  />
-                }
-              />
-            </Routes>
-            <footer className="app-footer">
-              <span>
-                <ShieldPlus size={13} />
-                银龄守护<span>·</span>让每一次关注，都有后续。
-              </span>
-              <button onClick={() => setInfo(true)}>
-                <Database size={13} />
-                本地 JSON + 浏览器存储
-                <ChevronRight size={12} />
-              </button>
-            </footer>
+            ))}
           </div>
-        </main>
-        <button
-          className="floating-create"
-          aria-label="快速新建随访任务"
-          onClick={() => setCreate(true)}
-        >
-          <Plus size={20} />
-          <span>新建随访</span>
-        </button>
+        </section>
+        <section className="import-card">
+          <div className="import-card-heading">
+            <h2>选择数据文件</h2>
+            <p>使用现有分析结果，无需重新训练。</p>
+          </div>
+          <HistoryImportModal embedded onClose={() => {}} onImported={setData} />
+        </section>
       </div>
-      {toast && (
-        <div
-          className={`toast ${toast.error ? 'error' : ''}`}
-          role={toast.error ? 'alert' : 'status'}
-        >
-          {toast.error ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
-          {toast.message}
-        </div>
-      )}
-      {importModal}
-      {info && <DataModal onClose={() => setInfo(false)} />}
-      {reset && <ResetModal onClose={() => setReset(false)} />}
-      {create && <CreateTaskModal onClose={() => setCreate(false)} />}
-    </div>
+      <footer className="import-footer">
+        <ShieldCheck size={17} />
+        文件仅在本机浏览器读取，不上传到服务器。
+      </footer>
+    </main>
   )
 }
