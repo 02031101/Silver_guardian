@@ -320,6 +320,9 @@
   }
 }
 @media (max-width: 1050px) {
+  .history-shell .profile-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .history-detail-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -415,9 +418,8 @@
     font-size: 14px;
   }
   .history-shell .profile-summary {
-    gap: 14px;
-    display: grid;
-    grid-template-columns: 1fr;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .history-message {
     font-size: 14px;

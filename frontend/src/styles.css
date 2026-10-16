@@ -772,26 +772,48 @@ textarea {
   flex-shrink: 0;
 }
 .profile-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr 1.1fr;
+  gap: 16px;
+  margin: 24px 0 0;
+}
+.profile-summary > div {
+  min-width: 0;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid #d9e5de;
+  border-radius: 10px;
   display: flex;
-  align-items: center;
-  gap: 25px;
+  flex-direction: column;
+  gap: 12px;
+}
+.profile-summary dt {
+  font-size: 15px;
+  color: #61766d;
+  line-height: 1.6;
+}
+.profile-summary dd {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
   flex-wrap: wrap;
-  margin-top: 24px;
-  padding: 20px 0;
-  border-top: 1px solid #e2ebd9;
-  border-bottom: 1px solid #e2ebd9;
-}
-.profile-summary > span {
-  font-size: 15px;
-  display: flex;
-  align-items: center;
   gap: 8px;
-  color: #647557;
+  color: #21594d;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
-.profile-summary strong {
-  font-size: 15px;
-  color: #557747;
-  font-weight: 500;
+.profile-summary dd > span {
+  font-size: 14px;
+  font-weight: 400;
+  color: #61766d;
+}
+.profile-summary .profile-stat-text {
+  font-size: 21px;
+  line-height: 1.6;
+  font-weight: 550;
 }
 .detail-bottom {
   display: grid;
@@ -1615,13 +1637,21 @@ textarea {
     padding: 10px 11px;
   }
   .profile-summary {
-    padding: 17px 0;
     margin-top: 20px;
-    gap: 14px;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .profile-summary > span,
-  .profile-summary strong {
+  .profile-summary > div {
+    padding: 16px;
+  }
+  .profile-summary dt {
     font-size: 14px;
+  }
+  .profile-summary dd {
+    font-size: 26px;
+  }
+  .profile-summary .profile-stat-text {
+    font-size: 20px;
   }
   .detail-bottom {
     gap: 17px;

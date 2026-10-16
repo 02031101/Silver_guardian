@@ -1006,20 +1006,30 @@ function HistoryPatientDetail({
           </button>
         </div>
       </section>
-      <div className="profile-summary">
-        <span>
-          就诊次数<strong>{display(p.visits, 0)}</strong>
-        </span>
-        <span>
-          住院次数<strong>{display(p.admissions, 0)}</strong>
-        </span>
-        <span>
-          画像标签<strong>{p.group.replace(/^[?\uFFFD\s]+/, '') || '未提供'}</strong>
-        </span>
-        <span>
-          画像归属度<strong>{display(p.membership, 4)}</strong>
-        </span>
-      </div>
+      <dl className="profile-summary" aria-label="患者就诊与画像摘要">
+        <div>
+          <dt>就诊次数</dt>
+          <dd>
+            {display(p.visits, 0)}
+            {p.visits !== null && <span>次</span>}
+          </dd>
+        </div>
+        <div>
+          <dt>住院次数</dt>
+          <dd>
+            {display(p.admissions, 0)}
+            {p.admissions !== null && <span>次</span>}
+          </dd>
+        </div>
+        <div>
+          <dt>画像标签</dt>
+          <dd className="profile-stat-text">{p.group.replace(/^[?\uFFFD\s]+/, '') || '未提供'}</dd>
+        </div>
+        <div>
+          <dt>画像归属度</dt>
+          <dd>{display(p.membership, 4)}</dd>
+        </div>
+      </dl>
       <p className="profile-reference-note">
         画像归属度表示聚类模型对该画像的归属把握，范围
         0–1；它不是风险概率。画像标签与再入院等级来自不同模型，含义不同。
