@@ -1,0 +1,539 @@
+.history-entry {
+  font-size: 10px;
+  color: #267567;
+  border-color: #cddfd7;
+  background: #f5faf6;
+}
+.history-source-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #edf5f0;
+  border: 1px solid #d5e7dc;
+  border-radius: 7px;
+  padding: 12px 15px;
+  font-size: 11px;
+  color: #557568;
+  line-height: 1.8;
+}
+.history-source-banner .text-link {
+  margin-left: auto;
+}
+.history-source-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #28765f;
+  font-weight: 600;
+}
+.history-real-pill {
+  color: #2d765d;
+  background: #eaf4ec;
+  border: 1px solid #cce2d1;
+  font-size: 10px;
+  border-radius: 5px;
+  padding: 4px 8px;
+}
+.history-shell .brand {
+  text-align: left;
+}
+.history-shell .nav-item {
+  width: 100%;
+}
+.history-shell .sidebar-help {
+  padding-top: 10px;
+}
+.history-shell .app-footer > button {
+  display: flex;
+}
+.history-header-actions {
+  margin: 0;
+}
+.history-message {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: white;
+  border: 1px solid #d5e4d4;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 11px;
+  color: #52794b;
+  margin-top: 15px;
+  line-height: 1.8;
+}
+.history-message.error {
+  color: #a45e48;
+  border-color: #e9cec0;
+}
+.history-message .icon-btn {
+  margin-left: auto;
+}
+.history-message .text-link {
+  flex-shrink: 0;
+}
+.history-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+}
+.history-quality {
+  padding-bottom: 22px;
+}
+.history-quality dl {
+  padding: 0 22px;
+  margin: 3px 0 18px;
+}
+.history-quality dl > div {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid #edf1e9;
+}
+.history-quality dt {
+  font-size: 10px;
+  color: #6f7f6a;
+}
+.history-quality dd {
+  margin: 0;
+  font-size: 12px;
+  color: #4f735b;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.history-quality > .btn {
+  margin: 0 22px;
+}
+.history-quality-note {
+  display: flex;
+  gap: 9px;
+  padding: 13px 15px;
+  margin: 17px 22px;
+  background: #f7f8ee;
+  border: 1px solid #e8ebd4;
+  border-radius: 7px;
+  color: #858155;
+  font-size: 11px;
+  line-height: 1.9;
+}
+.history-quality-note svg {
+  margin-top: 3px;
+}
+.history-coverage {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 17px;
+  margin-top: 20px;
+}
+.history-coverage > div {
+  background: #fff;
+  border: 1px solid #e5ebe2;
+  border-radius: 9px;
+  padding: 20px;
+  color: #68856b;
+}
+.history-coverage strong {
+  font-size: 12px;
+  margin-left: 9px;
+  font-weight: 550;
+}
+.history-coverage p {
+  margin-top: 13px;
+  font-size: 11px;
+  line-height: 1.9;
+  color: #71816d;
+}
+.history-conflict-pill {
+  display: inline-flex;
+  font-size: 10px;
+  padding: 4px 7px;
+  border-radius: 4px;
+  color: #a1733e;
+  background: #fbf2e5;
+  border: 1px solid #eedfc4;
+  white-space: nowrap;
+}
+.history-table {
+  min-width: 760px;
+}
+.history-table th,
+.history-table td {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.history-table .patient-cell {
+  text-align: left;
+  padding: 0;
+}
+.history-table .patient-cell strong {
+  font-size: 11px;
+}
+.history-table .disease-tags > span {
+  font-size: 9px;
+}
+.history-table .badge {
+  font-size: 9px;
+}
+.history-pagination > div {
+  display: flex;
+  gap: 7px;
+}
+.history-pagination {
+  align-items: center;
+}
+.history-source-id {
+  color: #6c8065;
+  font-size: 10px;
+  margin: 15px 0 20px;
+}
+.history-source-id summary {
+  cursor: pointer;
+}
+.history-source-id code {
+  display: inline-block;
+  background: #edf2e8;
+  padding: 8px 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.history-source-id p {
+  margin-top: 8px;
+  line-height: 1.7;
+}
+.history-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.history-lab-summary {
+  min-width: 530px;
+}
+.history-lab-summary td,
+.history-score-table td {
+  font-variant-numeric: tabular-nums;
+  color: #61765d;
+}
+.history-score-table {
+  min-width: 680px;
+}
+.history-latest-score {
+  padding: 0 23px;
+}
+.history-latest-score > strong {
+  display: block;
+  font-size: 32px;
+  font-weight: 550;
+  color: #658164;
+  margin: 10px 0 13px;
+}
+.history-latest-score > p {
+  font-size: 11px;
+  color: #6b8063;
+  margin-bottom: 11px;
+}
+.history-latest-score > span {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #7b8565;
+}
+.history-section {
+  margin-top: 20px;
+}
+.history-disease-scores {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  padding: 0 22px 22px;
+}
+.history-disease-scores > div {
+  border: 1px solid #e9eee2;
+  padding: 13px;
+  border-radius: 6px;
+  background: #fbfcf8;
+}
+.history-disease-scores span {
+  font-size: 10px;
+  color: #7a896e;
+}
+.history-disease-scores strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 19px;
+  color: #5a7b56;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.history-review-list {
+  padding: 0 22px;
+}
+.history-review-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid #edf1e5;
+}
+.history-review-list article:last-child {
+  border-bottom: 0;
+}
+.history-review-list h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #5e7d55;
+  font-weight: 550;
+}
+.history-review-list p {
+  font-size: 11px;
+  color: #7d896c;
+  margin-top: 10px;
+  line-height: 1.9;
+}
+.history-review-list article > div:last-child {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.history-review-list .history-saved-note {
+  font-size: 10px;
+  background: #f3f7ed;
+  border-radius: 5px;
+  padding: 9px 12px;
+  overflow-wrap: anywhere;
+}
+.history-task-person {
+  margin-top: 11px;
+}
+.history-source-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.history-source-cards > div {
+  border: 1px solid #e1ead7;
+  padding: 16px;
+  border-radius: 8px;
+  color: #5f8458;
+  min-width: 0;
+}
+.history-source-cards strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.history-source-cards p {
+  font-size: 10px;
+  color: #79886c;
+  margin-top: 8px;
+}
+.history-info-list p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #768967;
+  margin-top: 13px;
+  padding-left: 13px;
+  border-left: 2px solid #d9e5ce;
+}
+.history-import-explainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f5f8ef;
+  border: 1px solid #e3ecd8;
+  border-radius: 7px;
+  padding: 14px;
+  margin-bottom: 16px;
+  color: #6c875b;
+  font-size: 11px;
+  line-height: 1.9;
+}
+.history-import-explainer > svg {
+  margin-top: 3px;
+}
+.history-shell .history-table .cell-meta {
+  color: #718169;
+}
+@media (max-width: 1250px) {
+  .history-overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .history-quality {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .history-quality .panel-heading {
+    grid-column: 1/-1;
+  }
+  .history-quality > .btn {
+    justify-self: start;
+  }
+  .history-table {
+    min-width: 720px;
+  }
+  .history-header-actions {
+    gap: 7px;
+  }
+}
+@media (max-width: 1050px) {
+  .history-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .history-disease-scores {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .history-review-list article {
+    flex-wrap: wrap;
+  }
+  .history-review-list article > div:last-child {
+    margin-left: auto;
+  }
+  .history-coverage {
+    gap: 12px;
+  }
+  .history-coverage > div {
+    padding: 16px;
+  }
+  .history-entry {
+    padding: 8px 10px;
+  }
+  .history-entry > span {
+    max-width: 90px;
+  }
+}
+@media (max-width: 600px) {
+  .history-entry {
+    border: 0;
+    background: transparent;
+    padding: 5px;
+    min-height: 30px;
+  }
+  .history-entry > span {
+    display: none;
+  }
+  .history-source-banner {
+    font-size: 9px;
+    gap: 7px;
+    padding: 10px;
+  }
+  .history-source-banner > span:nth-child(2) {
+    width: 100%;
+    order: 3;
+  }
+  .history-source-banner .text-link {
+    font-size: 9px;
+  }
+  .history-source-tag {
+    font-size: 10px;
+  }
+  .history-header-actions > .btn {
+    font-size: 9px;
+    padding: 7px 9px;
+  }
+  .history-header-actions > .btn > svg {
+    width: 13px;
+  }
+  .history-shell .metric-value {
+    font-size: 26px;
+  }
+  .history-shell .metric-bottom {
+    font-size: 9px;
+    line-height: 1.8;
+  }
+  .history-coverage {
+    grid-template-columns: 1fr;
+    margin-top: 15px;
+  }
+  .history-quality {
+    display: block;
+  }
+  .history-quality dl {
+    padding: 0 17px;
+  }
+  .history-quality-note {
+    margin: 14px 17px;
+    font-size: 10px;
+    padding: 11px;
+  }
+  .history-quality > .btn {
+    margin: 0 17px;
+  }
+  .history-overview-grid {
+    gap: 15px;
+  }
+  .history-section {
+    margin-top: 15px;
+  }
+  .history-disease-scores {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+    padding: 0 17px 17px;
+  }
+  .history-disease-scores > div {
+    padding: 12px;
+  }
+  .history-disease-scores strong {
+    font-size: 18px;
+  }
+  .history-source-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .history-source-cards > div {
+    padding: 13px;
+  }
+  .history-review-list {
+    padding: 0 16px;
+  }
+  .history-review-list h3 {
+    font-size: 12px;
+  }
+  .history-review-list p {
+    font-size: 10px;
+  }
+  .history-latest-score {
+    padding: 0 17px;
+  }
+  .history-latest-score > strong {
+    font-size: 28px;
+  }
+  .history-pagination {
+    font-size: 9px;
+  }
+  .history-pagination .btn {
+    font-size: 9px;
+    min-height: 29px;
+    padding: 6px 9px;
+  }
+  .history-shell .profile-summary {
+    grid-template-columns: 1fr;
+  }
+  .history-shell .profile-summary > span {
+    font-size: 10px;
+  }
+  .history-shell .profile-summary strong {
+    font-size: 10px;
+  }
+  .history-shell .profile-identity p {
+    font-size: 9px;
+    line-height: 1.9;
+  }
+  .history-shell .profile-diseases {
+    flex-wrap: wrap;
+  }
+  .history-shell .profile-actions {
+    flex-wrap: wrap;
+  }
+  .history-import-explainer {
+    font-size: 10px;
+  }
+  .history-message {
+    font-size: 10px;
+    align-items: flex-start;
+  }
+}

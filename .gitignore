@@ -1,0 +1,9 @@
+# Real medical data and generated model artifacts stay local.
+*.csv
+*.parquet
+*.xlsx
+*.xls
+*.pkl
+*.pt
+private-data/
+local-data/

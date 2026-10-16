@@ -17,12 +17,15 @@ import {
   ShieldCheck,
   ShieldPlus,
   Users,
+  Upload,
   AlertCircle,
 } from 'lucide-react'
 import { Dashboard, Followups, PatientDetail, Patients, Reviews } from './pages'
 import { CreateTaskModal, DataModal, ResetModal } from './forms'
 import { Empty } from './components'
 import { useStore } from './store'
+import { HistoryImportModal, HistoryWorkspace } from './history/HistoryWorkspace'
+import type { HistoricalDataset } from './history/data'
 
 const navigation = [
   { to: '/', label: '工作台', en: 'Overview', icon: LayoutDashboard },
@@ -35,6 +38,8 @@ export function App() {
   const { data, local, toast, exportData } = useStore()
   const location = useLocation()
   const navigate = useNavigate()
+  const [historical, setHistorical] = useState<HistoricalDataset | null>(null)
+  const [importing, setImporting] = useState(false)
   const [info, setInfo] = useState(false)
   const [reset, setReset] = useState(false)
   const [create, setCreate] = useState(false)
@@ -53,8 +58,8 @@ export function App() {
   useEffect(() => {
     setMobileMenu(false)
     main.current?.scrollTo({ top: 0 })
-    document.title = `${page} · 银龄守护`
-  }, [location.pathname, page])
+    document.title = historical ? '真实历史数据 · 银龄守护' : `${page} · 银龄守护`
+  }, [location.pathname, page, historical])
   useEffect(() => {
     const keyboard = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName
@@ -71,6 +76,27 @@ export function App() {
     window.addEventListener('keydown', keyboard)
     return () => window.removeEventListener('keydown', keyboard)
   }, [])
+  const importModal = importing ? (
+    <HistoryImportModal
+      onClose={() => setImporting(false)}
+      onImported={(next) => {
+        setHistorical(next)
+        setImporting(false)
+      }}
+    />
+  ) : null
+  if (historical)
+    return (
+      <>
+        <HistoryWorkspace
+          key={historical.fingerprint}
+          data={historical}
+          onExit={() => setHistorical(null)}
+          onReplace={() => setImporting(true)}
+        />
+        {importModal}
+      </>
+    )
   return (
     <div className="app-shell">
       <a
@@ -174,6 +200,10 @@ export function App() {
             <span className="breadcrumb-current">{page}</span>
           </div>
           <div className="topbar-right">
+            <button className="btn small history-entry" onClick={() => setImporting(true)}>
+              <Upload size={15} />
+              <span>导入真实历史数据</span>
+            </button>
             <form
               className="global-search"
               onSubmit={(e) => {
@@ -288,6 +318,7 @@ export function App() {
           {toast.message}
         </div>
       )}
+      {importModal}
       {info && <DataModal onClose={() => setInfo(false)} />}
       {reset && <ResetModal onClose={() => setReset(false)} />}
       {create && <CreateTaskModal onClose={() => setCreate(false)} />}
