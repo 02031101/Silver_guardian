@@ -17,6 +17,6 @@ npm run dev
 
 在页面选择患者宽表和再入院评分 CSV，点击「打开工作台」。缺失字段留空，重复与差异记录保留，核对和随访记录保存在当前浏览器。
 
-原始医疗数据和患者截图不上传 GitHub。数据口径、启动与测试说明见 [前端使用说明](frontend/README.md)。
+数据口径、启动与测试说明见 [前端使用说明](frontend/README.md)。
 
 ![数据导入页](frontend/docs/import.png)
